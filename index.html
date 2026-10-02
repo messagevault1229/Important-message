@@ -1,304 +1,703 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Keeps the secret message out of normal link-preview text -->
-  <meta name="description" content="Open this private message 💌">
-  <meta property="og:title" content="Open this message 💌">
-  <meta property="og:description" content="A private message is waiting for you.">
-  <meta property="og:type" content="website">
+<!-- Keep link previews neutral -->
+<meta name="description" content="Open this private message 💌">
+<meta property="og:title" content="Open this message 💌">
+<meta property="og:description" content="A private message is waiting for you.">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open this message 💌</title>
 
-  <title>Open this message 💌</title>
+<style>
+* {
+  box-sizing: border-box;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: #08040b;
+  color: white;
+  font-family: Georgia, serif;
+  overflow-x: hidden;
+}
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      overflow: hidden;
-      font-family: Georgia, "Times New Roman", serif;
-      background: #08060b;
-      color: white;
-    }
+.screen {
+  min-height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 25px;
+  position: relative;
+}
 
-    button {
-      font-family: inherit;
-    }
+.screen.active {
+  display: flex;
+}
 
-    .screen {
-      position: absolute;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 25px;
-    }
+button {
+  border: none;
+  padding: 13px 25px;
+  border-radius: 30px;
+  background: #ff4f81;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,79,129,.5);
+}
 
-    .screen.active {
-      display: flex;
-    }
+button:active {
+  transform: scale(.95);
+}
 
-    /* ---------- BACKGROUND ---------- */
+/* Stars */
+.stars {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(white 1px, transparent 1px),
+    radial-gradient(white 1px, transparent 1px);
+  background-size: 80px 80px, 130px 130px;
+  background-position: 10px 20px, 40px 70px;
+  opacity: .35;
+}
 
-    .background {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 50% 40%, #3b1730 0%, #160b18 45%, #050407 100%);
-    }
+/* Doors */
+.doors {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  pointer-events: none;
+}
 
-    .stars {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1px);
-      background-size: 70px 70px;
-      opacity: .35;
-      animation: starsMove 12s linear infinite;
-    }
+.door {
+  width: 50%;
+  height: 100%;
+  background: #170b18;
+  border: 2px solid #3b182f;
+  transition: transform 1.8s ease;
+}
 
-    @keyframes starsMove {
-      from { transform: translateY(0); }
-      to { transform: translateY(70px); }
-    }
+.left-door {
+  transform-origin: left;
+}
 
-    /* ---------- DOORS ---------- */
+.right-door {
+  transform-origin: right;
+}
 
-    #doorScreen {
-      background: #050407;
-      overflow: hidden;
-    }
+.doors.open .left-door {
+  transform: translateX(-100%);
+}
 
-    .door {
-      position: absolute;
-      top: 0;
-      width: 50%;
-      height: 100%;
-      background:
-        linear-gradient(90deg, #160c0d, #42201d, #160c0d);
-      border: 3px solid #b88a55;
-      z-index: 5;
-      transition: transform 2.2s cubic-bezier(.77,0,.18,1);
-    }
+.doors.open .right-door {
+  transform: translateX(100%);
+}
 
-    .door.left {
-      left: 0;
-      transform-origin: left center;
-    }
+/* Welcome */
+.welcome-title {
+  font-size: clamp(38px, 10vw, 70px);
+  animation: welcome 1.5s ease;
+}
 
-    .door.right {
-      right: 0;
-      transform-origin: right center;
-    }
+@keyframes welcome {
+  from {
+    opacity: 0;
+    transform: scale(.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
-    .door::after {
-      content: "";
-      position: absolute;
-      top: 10%;
-      bottom: 10%;
-      width: 65%;
-      border: 2px solid rgba(213,170,105,.45);
-    }
+/* Name */
+.name-box {
+  width: min(90vw, 420px);
+}
 
-    .door.left::after {
-      right: 8%;
-    }
+.name-box h2 {
+  line-height: 1.5;
+}
 
-    .door.right::after {
-      left: 8%;
-    }
+input {
+  width: 100%;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ff4f81;
+  background: #140914;
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  outline: none;
+  margin: 18px 0;
+}
 
-    .door-handle {
-      position: absolute;
-      top: 50%;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: #e4b96f;
-      box-shadow: 0 0 15px #e4b96f;
-    }
+/* Bear */
+.bear {
+  width: 150px;
+  height: 125px;
+  background: #b97842;
+  border-radius: 50% 50% 45% 45%;
+  margin: 0 auto 25px;
+  position: relative;
+  animation: bearFloat 2s infinite ease-in-out;
+}
 
-    .door.left .door-handle {
-      right: 18px;
-    }
+.ear {
+  width: 45px;
+  height: 45px;
+  background: #b97842;
+  border-radius: 50%;
+  position: absolute;
+  top: -15px;
+}
 
-    .door.right .door-handle {
-      left: 18px;
-    }
+.ear.left {
+  left: 10px;
+}
 
-    #doorScreen.open .door.left {
-      transform: translateX(-100%);
-    }
+.ear.right {
+  right: 10px;
+}
 
-    #doorScreen.open .door.right {
-      transform: translateX(100%);
-    }
+.eye {
+  width: 9px;
+  height: 9px;
+  background: #111;
+  border-radius: 50%;
+  position: absolute;
+  top: 48px;
+}
 
-    .welcome {
-      z-index: 2;
-      opacity: 0;
-      transform: scale(.7);
-    }
+.eye.left {
+  left: 48px;
+}
 
-    #doorScreen.open .welcome {
-      animation: welcomeIn 2s .8s forwards;
-    }
+.eye.right {
+  right: 48px;
+}
 
-    @keyframes welcomeIn {
-      to {
-        opacity: 1;
-        transform: scale(1);
+.nose {
+  width: 15px;
+  height: 12px;
+  background: #111;
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  top: 62px;
+  transform: translateX(-50%);
+}
+
+.arm {
+  width: 75px;
+  height: 25px;
+  background: #b97842;
+  border-radius: 30px;
+  position: absolute;
+  top: 82px;
+  transition: 1s;
+}
+
+.arm.left {
+  left: -45px;
+  transform: rotate(25deg);
+}
+
+.arm.right {
+  right: -45px;
+  transform: rotate(-25deg);
+}
+
+.bear.hug .arm.left {
+  transform: rotate(45deg) translate(30px, -10px);
+}
+
+.bear.hug .arm.right {
+  transform: rotate(-45deg) translate(-30px, -10px);
+}
+
+@keyframes bearFloat {
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Heart */
+.heart {
+  width: 110px;
+  height: 110px;
+  background: #ff416c;
+  transform: rotate(-45deg);
+  margin: 35px auto;
+  position: relative;
+  animation: heartbeat 1s infinite;
+}
+
+.heart::before,
+.heart::after {
+  content: "";
+  width: 110px;
+  height: 110px;
+  background: #ff416c;
+  border-radius: 50%;
+  position: absolute;
+}
+
+.heart::before {
+  top: -55px;
+  left: 0;
+}
+
+.heart::after {
+  left: 55px;
+  top: 0;
+}
+
+@keyframes heartbeat {
+  50% {
+    transform: rotate(-45deg) scale(1.12);
+  }
+}
+
+.heart.break {
+  animation: heartBreak .8s forwards;
+}
+
+@keyframes heartBreak {
+  to {
+    transform: rotate(-45deg) scale(1.7);
+    opacity: 0;
+  }
+}
+
+/* Letter */
+.letter-wrap {
+  width: min(92vw, 700px);
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.letter {
+  background: #fff8ed;
+  color: #291820;
+  border-radius: 18px;
+  padding: 28px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 35px rgba(255,120,160,.35);
+  text-align: left;
+}
+
+.letter h2 {
+  text-align: center;
+  color: #c73568;
+}
+
+.message {
+  white-space: pre-line;
+  line-height: 1.75;
+  font-size: 16px;
+}
+
+.flip {
+  animation: flipPage .65s ease;
+}
+
+@keyframes flipPage {
+  from {
+    opacity: 0;
+    transform: rotateY(90deg);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0);
+  }
+}
+
+/* Final */
+.final-title {
+  font-size: clamp(30px, 8vw, 55px);
+  color: #ff729c;
+  animation: finalPop 1.5s ease;
+}
+
+@keyframes finalPop {
+  from {
+    opacity: 0;
+    transform: scale(.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Floating hearts */
+.floating-heart {
+  position: fixed;
+  bottom: -30px;
+  font-size: 22px;
+  animation: floatUp 5s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes floatUp {
+  from {
+    transform: translateY(0) rotate(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-110vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+
+<div class="doors" id="doors">
+  <div class="door left-door"></div>
+  <div class="door right-door"></div>
+</div>
+
+<!-- Welcome -->
+<section class="screen active" id="welcome">
+  <div>
+    <div class="welcome-title">Welcome ❤️</div>
+    <p>A little message is waiting for you...</p>
+    <button onclick="openQuestion()">Continue</button>
+  </div>
+</section>
+
+<!-- Name -->
+<section class="screen" id="question">
+  <div class="name-box">
+    <h2>Enter my full name without initial,<br>to read my heart feelings. ❤️</h2>
+
+    <p>_ _ _ _ _ _ _ _ _ _ _ _</p>
+
+    <input
+      id="nameInput"
+      type="text"
+      placeholder="Enter the name"
+      autocomplete="off"
+    >
+
+    <br>
+
+    <button onclick="checkName()">Open My Heart ❤️</button>
+
+    <p id="error" style="color:#ff668d;"></p>
+  </div>
+</section>
+
+<!-- Bear -->
+<section class="screen" id="bearScreen">
+  <div>
+    <div class="bear" id="bear">
+      <div class="ear left"></div>
+      <div class="ear right"></div>
+      <div class="eye left"></div>
+      <div class="eye right"></div>
+      <div class="nose"></div>
+      <div class="arm left"></div>
+      <div class="arm right"></div>
+    </div>
+
+    <h2>Thank you for opening my heart. ❤️</h2>
+
+    <button onclick="openHeart()">Continue</button>
+  </div>
+</section>
+
+<!-- Heart -->
+<section class="screen" id="heartScreen">
+  <div>
+    <div class="heart" id="heart"></div>
+    <p>There is something inside my heart...</p>
+    <button onclick="breakHeart()">Open it ❤️</button>
+  </div>
+</section>
+
+<!-- Letter -->
+<section class="screen" id="letterScreen">
+  <div class="letter-wrap">
+    <div class="letter" id="letter">
+      <h2 id="pageTitle"></h2>
+      <div class="message" id="message"></div>
+      <br>
+      <div style="text-align:center;">
+        <button onclick="nextPage()" id="nextButton">Next ❤️</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final -->
+<section class="screen" id="finalScreen">
+  <div>
+    <div class="final-title">
+      Love you so much,<br>
+      Kannamma ❤️
+    </div>
+
+    <p>Forever waiting for you. 🫂❤️</p>
+  </div>
+</section>
+
+<script>
+
+const pages = [
+
+{
+title: "I Miss You ❤️",
+text: `Hii Kannamma ❤️
+
+Nenu nanna ni, babu ni… yela unnav nanna? Nenu mathram em baledhu ra. Ila nitho matladakunda undalekapothunna. Na valla katledhu nanna.
+
+Naku thelsu, chala vishayallo nenu ninnu badhapetta ani. Appudu nakadhi theliyaledhu… NUV dhooram ayyake naku ardham avthundhi — nuvvu lekunda nenu undalenu ani.
+
+NUV natho unnanni rojulu naku chala dhairyamga, oka comfort zone lo unnattu, safe ga anipinchedhi. Nuvvu nannu ye cheekati rojula nundi baitiki theeskochavo, ippudu nuvvu dhooram ayyaka malli adhey cheekati rojulloki nannu thosesinattu undhi.
+
+Nitho gadipina prathi second kuda naku chala santhosham ichindhi ra. Aa santhosham life long naatho undalani korukuntunna.
+
+Nuvvu anukuntunnavemo… “Konni rojulu untadu, tharvatha move on aipothadu” ani. Kani ala kadhu nanna. Na chivari shvasa varaku kuda nenu ninne premisthanu.
+
+Na prathi adugulo ni cheyyi nannu pattukovali. Na prathi pani lo, prathi prayathnam lo naku ni thodu kavali. Nitho unte naku happy ga untundhi ra.
+
+Yem jarigina naku NUV kavali Kannamma. Ni cheyyi nenu inka vadhalali anukotledhu.
+
+Nenu inthaka mundhula lenu ani naku thelusu… kani nikosam yedhaina maarchukovalani anipisthundhi.
+
+Ni tho thittinchukovalanipisthundhi, ni tho kottinchukovalanipisthundhi… ni jeevitham motham ni pakkana undi brathakalanipisthundhi.
+
+Chivari varaku na cheyyi vadhileyaku nanna. 🫂`
+},
+
+{
+title: "Give Me One Chance ❤️",
+text: `Ala ani amma ni risk lo pettu ani nenu cheppatledhu ra. Konchem okka 1 year time adugu nanna. NUV baitiki vasthe chalu… nenu nitho untanu.
+
+Baitiki vadham ante kotha place kadha nanna. Appudu naku ni thodu kavali. Nuvvu pakkana unte naku dhairyamga untundhi.
+
+Job ki velthanu, thirigochaka ninnu chusthanu… appudu na job stress kuda pothundhi.
+
+Naku konni financial issues unnai, avi neeku thelsu kadha ra. Manam idharam kalisi plan cheskoni anni clear cheskundham. Naku ni help kavali nanna… ni help mathrame kavali.
+
+Nikem kavalo cheppu nanna, nenu chesthanu. Nenu thappu chesthe thalli la kottu, thittu… nuvve kadha nanna. Nenu padthanu. Andhulo kuda ni premani vethukkuntanu. Kani nannu vadhilesi vellipoku ra.
+
+NUV natho unte nenemaina cheyagalanu. Ninnu, mana pillalni nenu chuskunta nanna. Nuvvu inthaka mundhu yelanti kashtalu paddavo, alanti kashtalu malli neeku rakunda nenu chuskunta.
+
+Yendhuku intha sudden ga maaripoyadu ani niku anipinchachu. Kani adhi kevalam nimidha nakunna prema valle ra. Yem jarigina ninnu vadhulukovadhu ane na prayathname nannu maarusthundhi.
+
+Nuvvu natho unte nenu inka baaga undagalanu. Ee stress valla em thochatledhu ra. NUV natho unte na mind clear avthundhi. Life ki oka manchi plan veskoni manam mundhuki vellachu.
+
+Nenu marali, badhyathaga undalani kadha chinni thalli nuvvu korukunnav. Ippudu nenu na maarpuni neeku chupiddham anukunnappudu nuvvu vellipoyaventi nanna?
+
+Okkasari naku chance ivvu ra. Manam pelli cheskundham, job cheskundham. Savings vachaka, em vachina kalisi chuskovachu. Appudu mana pillalni plan cheskundham.
+
+Nenu nikoka manchi bartha ga undalani aasha padthunna ra. Ninnu na bharya ga cheskovalani aashapadthunna nanna. ❤️
+
+Na amma kashtalani kuda nenu chusa. Alanti kashtalu tana kodaliki ivvalani nenu eppudu anukonu.
+
+Badhyathaga undatam kashtamem kadhu nanna… kani aa badhyathalo naku ni thodu kavali.
+
+Naku nuvvu kavali ra. Ni prema kavali Kannamma.`
+},
+
+{
+title: "Please Don't Let Go 🫂",
+text: `Okka sari na kosam alochinchu nanna. Naatho matladu ra… naatho godavapadu nanna. Please Kannammaa.
+
+Manam kalisi undham. Kalisi fight chedham. Kalisi kashtalani edhurkundham. Na cheyyi vadhileyaku nanna.
+
+Nuvvu unte nenemaina cheyagalanu. Nuvvu lekunte ni alochanalo untu, nenem cheddham anukuntunnano kuda marchipothunna.
+
+Nuvvu dhooram ayyaka thelisindhi… nenu ninnu yentha premisthunnano.
+
+Inni rojulu amma kosam maraledhu. Ippudu sudden ga maaranu ani nenu yela nammali ani nuvvu anukovachu. Adhi thappu kadhu.
+
+Appudu NUV natho unnavu, amma support kuda undhi… kabatti naku kashtam theliyaledhu. Ippudu amma ki baleka, nuvvu naatho leka, naku badhyatha ante ento thelisindhi.
+
+Na ee first step lo naku ni thodu kavali ra. Nannu nadipinchu nanna. Okkasari nenu stable ayyaka, neeku yelaanti kashtam ranivvanu.
+
+Roju prayer cheskuntunna nikosam. Hope you believe me and understand me.
+
+Na cheyyi pattukoni chudu nanna… nenemem cheyagalano neeku chupisthanu. Okkasari naatho matladu.
+
+Nuvvu calls vaddu ante nenu calls cheyyanu. Nuvvu safe ga baitiki vasthe adhey naku chala happy. Just oka message chey… nee message kosam wait chesthu unta Kannamma.
+
+Chachenthavaraku na prema. Nenu ni sontham. Nannu vadhileyyaku nanna.
+
+Ika midhata ninnu na chelliga evariki parichayam cheyalankotledhu, lover ga kuda parichayam cheyalankotledhu. Ninnu na bharyagane parichayam cheskunta.
+
+Dhevudni nenu adigevadni… yendhuku thanani na life loki theeskocharu ani. Kani ippudu ardhamayyindhi. Ayana ninnu naku na bharya ga icharu, nalo maarpuni theeskocharu.
+
+Naku 28 years vachelopu poorthiga settle aipoyi, oka peaceful life ni lead chedham ani korukuntunna. Inka 2 years ey time undhi ra.
+
+Nanna… ippudu jariginavanni marchipora. Okkasari naku chance ichi nannu chudu.
+
+Thvaraga message chey nanna. Nannu nammu ra. Nenu calls cheyyanu… message chey chalu.
+
+Ila dhooramga undatamkante inka narakam yedhi ledhanipisthundhi.
+
+Please Kannamma… 🫂❤️
+
+Ee letter chusaka naku message chey nanna. Please ignore cheyyaku.
+
+Nuvvu em cheppina na manchi kosame kadha. Niku kavalsinavadiga nenu untanu. Naku kavalsina ni premani naku ivvu nanna.
+
+Thvaraga message chey ra… idhi chusaka.
+
+With so much of love and hope,
+From your,
+Lovely Husband 💞`
+}
+
+];
+
+let currentPage = 0;
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  document.getElementById(id).classList.add("active");
+}
+
+function openQuestion() {
+  showScreen("question");
+}
+
+function checkName() {
+  const input = document.getElementById("nameInput");
+  const answer = input.value.replace(/\s/g, "").toLowerCase();
+  const error = document.getElementById("error");
+
+  if (answer === "charlesfinny") {
+    document.getElementById("bear").classList.add("hug");
+    showScreen("bearScreen");
+  } else {
+    error.textContent = "That's not the name... try again ❤️";
+    input.value = "";
+  }
+}
+
+function openHeart() {
+  showScreen("heartScreen");
+}
+
+function breakHeart() {
+  const heart = document.getElementById("heart");
+
+  heart.classList.add("break");
+
+  setTimeout(() => {
+    showLetter();
+  }, 800);
+}
+
+function showLetter() {
+  currentPage = 0;
+
+  document.getElementById("pageTitle").textContent =
+    pages[currentPage].title;
+
+  document.getElementById("message").textContent =
+    pages[currentPage].text;
+
+  document.getElementById("nextButton").textContent = "Next ❤️";
+
+  showScreen("letterScreen");
+
+  createHearts();
+}
+
+function nextPage() {
+  const letter = document.getElementById("letter");
+
+  letter.classList.remove("flip");
+
+  void letter.offsetWidth;
+
+  letter.classList.add("flip");
+
+  currentPage++;
+
+  if (currentPage < pages.length) {
+
+    setTimeout(() => {
+
+      document.getElementById("pageTitle").textContent =
+        pages[currentPage].title;
+
+      document.getElementById("message").textContent =
+        pages[currentPage].text;
+
+      if (currentPage === pages.length - 1) {
+        document.getElementById("nextButton").textContent =
+          "Finish ❤️";
       }
-    }
 
-    .welcome h1 {
-      font-size: clamp(45px, 13vw, 90px);
-      margin: 0;
-      font-weight: normal;
-      letter-spacing: 4px;
-    }
+    }, 250);
 
-    .welcome p {
-      font-size: 18px;
-      margin-top: 12px;
-      opacity: .8;
-    }
+  } else {
 
-    /* ---------- GENERAL ---------- */
+    setTimeout(() => {
+      showScreen("finalScreen");
+      createHearts();
+    }, 500);
 
-    .content {
-      position: relative;
-      z-index: 2;
-      width: min(92%, 500px);
-    }
+  }
+}
 
-    .title {
-      font-size: clamp(30px, 8vw, 48px);
-      margin-bottom: 18px;
-    }
+function createHearts() {
 
-    .subtitle {
-      font-size: 18px;
-      line-height: 1.6;
-      opacity: .88;
-    }
+  for (let i = 0; i < 8; i++) {
 
-    .btn {
-      margin-top: 28px;
-      padding: 13px 30px;
-      border: 1px solid rgba(255,210,220,.6);
-      border-radius: 30px;
-      background: rgba(255,255,255,.08);
-      color: white;
-      font-size: 17px;
-      cursor: pointer;
-      transition: .3s;
-      box-shadow: 0 0 20px rgba(255,100,150,.15);
-    }
+    setTimeout(() => {
 
-    .btn:hover {
-      transform: scale(1.06);
-      background: rgba(255,255,255,.16);
-    }
+      const heart = document.createElement("div");
 
-    .btn:active {
-      transform: scale(.96);
-    }
+      heart.className = "floating-heart";
+      heart.textContent = "❤️";
 
-    /* ---------- NAME ---------- */
+      heart.style.left =
+        Math.random() * 100 + "vw";
 
-    .question {
-      font-size: 22px;
-      line-height: 1.5;
-      margin-bottom: 25px;
-    }
+      heart.style.animationDuration =
+        (4 + Math.random() * 3) + "s";
 
-    .name-input {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-bottom: 2px solid #e7a9bd;
-      outline: none;
-      background: transparent;
-      color: white;
-      text-align: center;
-      font-size: 23px;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-    }
+      document.body.appendChild(heart);
 
-    .name-input::placeholder {
-      color: rgba(255,255,255,.35);
-      letter-spacing: 4px;
-    }
+      setTimeout(() => {
+        heart.remove();
+      }, 7000);
 
-    .error {
-      height: 25px;
-      margin-top: 12px;
-      color: #ff9eae;
-      font-size: 14px;
-    }
+    }, i * 350);
+  }
+}
 
-    /* ---------- BEAR ---------- */
+/* Open doors automatically */
+setTimeout(() => {
+  document.getElementById("doors").classList.add("open");
+}, 700);
 
-    .bear {
-      position: relative;
-      width: 180px;
-      height: 170px;
-      margin: 0 auto 20px;
-      animation: bearFloat 2.5s ease-in-out infinite;
-    }
+</script>
 
-    @keyframes bearFloat {
-      50% { transform: translateY(-10px); }
-    }
-
-    .bear-head {
-      position: absolute;
-      width: 125px;
-      height: 115px;
-      left: 27px;
-      top: 15px;
-      border-radius: 48% 48% 45% 45%;
-      background: #b9784f;
-      box-shadow: inset -8px -8px 0 rgba(80,40,25,.15);
-    }
-
-    .ear {
-      position: absolute;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #b9784f;
-      top: 0;
-    }
-
-    .ear.left { left: 15px; }
-    .ear.right { right: 15px; }
-
-    .ear::after {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border-radius: 50%;
-      background: #8d563d;
-    }
-
-    .eye {
-      position: absolute;
-      width: 9px;
-      height: 12px;
-      background: #24130f;
-      border-radius: 50%;
-      top: 52px;
-    }
-
-    .eye
+</body>
+</html>
