@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <!-- Keeps the secret message out of normal link-preview text -->
+  <meta name="description" content="Open this private message 💌">
+  <meta property="og:title" content="Open this message 💌">
+  <meta property="og:description" content="A private message is waiting for you.">
+  <meta property="og:type" content="website">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Open this message 💌</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: Georgia, "Times New Roman", serif;
+      background: #08060b;
+      color: white;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 25px;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    /* ---------- BACKGROUND ---------- */
+
+    .background {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 50% 40%, #3b1730 0%, #160b18 45%, #050407 100%);
+    }
+
+    .stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle, rgba(255,255,255,.8) 1px, transparent 1px);
+      background-size: 70px 70px;
+      opacity: .35;
+      animation: starsMove 12s linear infinite;
+    }
+
+    @keyframes starsMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(70px); }
+    }
+
+    /* ---------- DOORS ---------- */
+
+    #doorScreen {
+      background: #050407;
+      overflow: hidden;
+    }
+
+    .door {
+      position: absolute;
+      top: 0;
+      width: 50%;
+      height: 100%;
+      background:
+        linear-gradient(90deg, #160c0d, #42201d, #160c0d);
+      border: 3px solid #b88a55;
+      z-index: 5;
+      transition: transform 2.2s cubic-bezier(.77,0,.18,1);
+    }
+
+    .door.left {
+      left: 0;
+      transform-origin: left center;
+    }
+
+    .door.right {
+      right: 0;
+      transform-origin: right center;
+    }
+
+    .door::after {
+      content: "";
+      position: absolute;
+      top: 10%;
+      bottom: 10%;
+      width: 65%;
+      border: 2px solid rgba(213,170,105,.45);
+    }
+
+    .door.left::after {
+      right: 8%;
+    }
+
+    .door.right::after {
+      left: 8%;
+    }
+
+    .door-handle {
+      position: absolute;
+      top: 50%;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #e4b96f;
+      box-shadow: 0 0 15px #e4b96f;
+    }
+
+    .door.left .door-handle {
+      right: 18px;
+    }
+
+    .door.right .door-handle {
+      left: 18px;
+    }
+
+    #doorScreen.open .door.left {
+      transform: translateX(-100%);
+    }
+
+    #doorScreen.open .door.right {
+      transform: translateX(100%);
+    }
+
+    .welcome {
+      z-index: 2;
+      opacity: 0;
+      transform: scale(.7);
+    }
+
+    #doorScreen.open .welcome {
+      animation: welcomeIn 2s .8s forwards;
+    }
+
+    @keyframes welcomeIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .welcome h1 {
+      font-size: clamp(45px, 13vw, 90px);
+      margin: 0;
+      font-weight: normal;
+      letter-spacing: 4px;
+    }
+
+    .welcome p {
+      font-size: 18px;
+      margin-top: 12px;
+      opacity: .8;
+    }
+
+    /* ---------- GENERAL ---------- */
+
+    .content {
+      position: relative;
+      z-index: 2;
+      width: min(92%, 500px);
+    }
+
+    .title {
+      font-size: clamp(30px, 8vw, 48px);
+      margin-bottom: 18px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      line-height: 1.6;
+      opacity: .88;
+    }
+
+    .btn {
+      margin-top: 28px;
+      padding: 13px 30px;
+      border: 1px solid rgba(255,210,220,.6);
+      border-radius: 30px;
+      background: rgba(255,255,255,.08);
+      color: white;
+      font-size: 17px;
+      cursor: pointer;
+      transition: .3s;
+      box-shadow: 0 0 20px rgba(255,100,150,.15);
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+      background: rgba(255,255,255,.16);
+    }
+
+    .btn:active {
+      transform: scale(.96);
+    }
+
+    /* ---------- NAME ---------- */
+
+    .question {
+      font-size: 22px;
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    .name-input {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-bottom: 2px solid #e7a9bd;
+      outline: none;
+      background: transparent;
+      color: white;
+      text-align: center;
+      font-size: 23px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+    }
+
+    .name-input::placeholder {
+      color: rgba(255,255,255,.35);
+      letter-spacing: 4px;
+    }
+
+    .error {
+      height: 25px;
+      margin-top: 12px;
+      color: #ff9eae;
+      font-size: 14px;
+    }
+
+    /* ---------- BEAR ---------- */
+
+    .bear {
+      position: relative;
+      width: 180px;
+      height: 170px;
+      margin: 0 auto 20px;
+      animation: bearFloat 2.5s ease-in-out infinite;
+    }
+
+    @keyframes bearFloat {
+      50% { transform: translateY(-10px); }
+    }
+
+    .bear-head {
+      position: absolute;
+      width: 125px;
+      height: 115px;
+      left: 27px;
+      top: 15px;
+      border-radius: 48% 48% 45% 45%;
+      background: #b9784f;
+      box-shadow: inset -8px -8px 0 rgba(80,40,25,.15);
+    }
+
+    .ear {
+      position: absolute;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #b9784f;
+      top: 0;
+    }
+
+    .ear.left { left: 15px; }
+    .ear.right { right: 15px; }
+
+    .ear::after {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      background: #8d563d;
+    }
+
+    .eye {
+      position: absolute;
+      width: 9px;
+      height: 12px;
+      background: #24130f;
+      border-radius: 50%;
+      top: 52px;
+    }
+
+    .eye
